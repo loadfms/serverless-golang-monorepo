@@ -6,12 +6,12 @@ orbs:
   path-filtering: circleci/path-filtering@0.1.1
 
 workflows:
-  always-run:
+  detecting-affected-projects:
     jobs:
       - path-filtering/filter:
           name: check-updated-files
           mapping: |
-            libs/.* run-whole-build true
-            services/hello-api/.* run-build-hello-api true
+            libs/.* deploy-everything true
+            services/hello-api/.* deploy-hello-api true
           base-revision: main
           config-path: .circleci/continue_config.yml
