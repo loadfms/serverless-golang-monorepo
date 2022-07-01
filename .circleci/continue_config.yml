@@ -1,0 +1,44 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+  serverless-framework: circleci/serverless-framework@2.0
+
+parameters:
+  run-whole-build:
+    type: boolean
+    default: false
+  run-build-hello-api:
+    type: boolean
+    default: false
+
+jobs:
+  deploy-whole:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy Whole
+          command: |
+            echo "deploy de tudo" 
+
+
+  deploy-hello-api:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy Whole
+          command: |
+            echo "deploy so da api" 
+
+workflows:
+  whole-build:
+    when: << pipeline.parameters.run-whole-build >>
+    jobs:
+      - deploy-whole
+
+  build-hello:
+    when: << pipeline.parameters.run-build-hello-api >>
+    jobs:
+      - deploy-hello-api
