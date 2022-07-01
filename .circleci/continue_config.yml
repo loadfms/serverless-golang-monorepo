@@ -32,7 +32,7 @@ workflows:
   deploy-everything:
     when: << pipeline.parameters.deploy-everything >>
     jobs:
-      - deploy-whole
+      - deploy-everything
 
   deploy-hello-api:
     when: << pipeline.parameters.deploy-hello-api >>
