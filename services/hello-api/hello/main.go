@@ -21,7 +21,7 @@ func Handler(ctx context.Context) (Response, error) {
 	var buf bytes.Buffer
 
 	body, err := json.Marshal(map[string]interface{}{
-		"message": strutil.ToUpper("Go Serverless v1.0! Your function executed successfully!!!"),
+		"message": strutil.ToUpper("Go Serverless v1.0! Your function executed successfully!!!!!!"),
 	})
 
 	if err != nil {
