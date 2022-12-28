@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "serverless-certificate-creator": "^1.6.0",
+    "serverless-domain-manager": "^6.2.1"
+  }
+}

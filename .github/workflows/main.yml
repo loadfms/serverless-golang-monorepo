@@ -1,0 +1,31 @@
+name: APP API
+on: 
+ push:
+    branches:
+      - "main"
+    paths:
+      - "apis/app-api/**"
+      - "libs/**"
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Use Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+      - name: "Install dependencies, build and deploy"    
+        working-directory: ./apis/app-api
+        run: |
+          npm install
+          make build
+          npm install -g serverless
+          make deploy
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -1,0 +1,129 @@
+service: serverless-golang-monorepo-app
+
+frameworkVersion: "3"
+
+custom:
+  domain: "loadfms.com"
+  subdomain: "serverless-golang-monorepo-api"
+  domain_name: "${self:custom.subdomain}.${self:custom.domain}"
+  certificate_name: "*.${self:custom.domain}"
+
+  customCertificate:
+    certificateName: ${self:custom.certificate_name}
+    hostedZoneNames: ${self:custom.domain}
+
+  customDomain:
+    domainName: ${self:custom.domain_name}
+    stage: ${self:provider.stage}
+    certificateName: "*.${self:custom.domain_name}"
+    createRoute53Record: true
+
+provider:
+  name: aws
+  runtime: go1.x
+  stage: "prd"
+  region: sa-east-1
+  versionFunctions: false
+  timeout: 30
+  memorySize: 128
+  logRetentionInDays: 5
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - lambda:InvokeFunction
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - ses:SendEmail
+          Resource: "*"
+
+package:
+  patterns:
+    - "!./**"
+    - ./bin/**
+
+functions:
+  authorizerFunc:
+    handler: bin/api/app/auth/authorizer
+
+  signup:
+    handler: bin/api/app/auth/signup
+    events:
+      - http:
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Startlower
+              - Text
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+            allowCredentials: false
+          path: /signup
+          method: post
+
+
+  signin:
+    handler: bin/api/app/auth/signin
+    events:
+      - http:
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Startlower
+              - Text
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+            allowCredentials: false
+          path: /signin
+          method: post
+
+resources:
+  Resources:
+    serverless-golang-monorepoApp:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: serverless-golang-monorepo_app
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    Unauthorized:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          "gatewayresponse.header.Access-Control-Allow-Origin": "'*'"
+          "gatewayresponse.header.Access-Control-Allow-Headers": "'*'"
+        ResponseType: "DEFAULT_4XX"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+
+plugins:
+  - serverless-certificate-creator
+  - serverless-domain-manager
